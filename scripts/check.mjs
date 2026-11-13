@@ -11,7 +11,15 @@ assert.equal(normalizeResponse('{"hello":"world"}').text,'{"hello":"world"}');
 assert.equal(normalizeResponse('```json\n{"a":1}\n```').text,'```json\n{"a":1}\n```');
 let output='',seen=false;const stream=createAnswerStream(x=>output+=x,()=>seen=true);
 for(const chunk of ['<th','ink>secret','</thi','nk>','{"name":null,','"message":"Hi!"}'])stream.push(chunk);
-assert.equal(output,'');stream.finish();assert.equal(output,'Hi!');assert.equal(seen,true);
+assert.equal(output,'Hi!');stream.finish();assert.equal(output,'Hi!');assert.equal(seen,true);
 let plain='';const normal=createAnswerStream(x=>plain+=x,()=>{});normal.push('Hello ');assert.equal(plain,'Hello ');normal.push('world');normal.finish();assert.equal(plain,'Hello world');
 let interleaved='';const mixed=createAnswerStream(x=>interleaved+=x,()=>{});for(const x of ['Hello ', '<th','ink>private','</think>','world'])mixed.push(x);mixed.finish();assert.equal(interleaved,'Hello world');
 console.log('Reasoning and response normalization tests passed.');
+
+assert.equal(m.defaultImage,'community/MarcosFRG/lucid-origin');
+assert.equal(m.defaultEdit,'black-forest-labs/flux.1-kontext-pro');
+assert.match(s,/maxDuration=300/);assert.match(s,/\/v1\/images\/generations/);assert.match(s,/\/v1\/images\/edits/);assert.match(s,/heartbeat/);
+const chat=readFileSync('components/Chat.jsx','utf8');assert.match(chat,/await read\(false\)/);assert.match(chat,/Jump to latest message/);assert.match(chat,/follow\.current=false/);
+let long='';const codeStream=createAnswerStream(x=>long+=x,()=>{});const code='Here is your website:\n\n\x60\x60\x60html\n<!DOCTYPE html>\n<html><body>Hi</body></html>\n\x60\x60\x60';const envelope=JSON.stringify({name:null,message:code});for(let i=0;i<envelope.length;i+=7)codeStream.push(envelope.slice(i,i+7));codeStream.finish();assert.equal(long,code);
+let partial='';const bad=createAnswerStream(x=>partial+=x,()=>{});bad.push('{"name":null,"message":"Incomplete');assert.throws(()=>bad.finish(),/incomplete routing envelope/);assert.equal(partial,'Incomplete');
+console.log('Media, scroll, retry and long-response regression checks passed.');
