@@ -31,9 +31,10 @@
     "@capacitor/core": "^7.4.0",
     "@capacitor/android": "^7.4.0",
     "@capacitor/ios": "^7.4.0",
-    "rehype-mathjax": "^7.1.0",
     "rehype-sanitize": "^6.0.0",
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "rehype-katex": "^7.0.1",
+    "katex": "^0.16.22"
   },
   "devDependencies": {
     "electron": "^36.0.0",
