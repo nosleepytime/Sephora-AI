@@ -1,0 +1,60 @@
+{
+  "name": "sephora-ai",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "desktop": "electron desktop/main.cjs",
+    "win:build": "electron-builder --win nsis",
+    "mobile:prepare": "node scripts/mobile.mjs",
+    "prebuild": "node scripts/prepare.mjs",
+    "predev": "node scripts/prepare.mjs",
+    "desktop:prepare": "node scripts/desktop.mjs",
+    "test": "node scripts/check.mjs"
+  },
+  "main": "desktop/main.cjs",
+  "dependencies": {
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "lucide-react": "^0.468.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "idb-keyval": "^6.2.2",
+    "mammoth": "^1.9.1",
+    "pdfjs-dist": "^4.10.38",
+    "otplib": "^12.0.1",
+    "mathjs": "^14.5.2",
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/ios": "^7.4.0",
+    "rehype-mathjax": "^7.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "electron": "^36.0.0",
+    "electron-builder": "^26.0.12",
+    "@capacitor/cli": "^7.4.0"
+  },
+  "build": {
+    "appId": "ai.sephora.client",
+    "productName": "Sephora AI",
+    "files": [
+      "desktop/**/*",
+      "public/icon-512.png",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

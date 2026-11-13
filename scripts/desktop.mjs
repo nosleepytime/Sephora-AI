@@ -1,0 +1,1 @@
+import {writeFileSync} from 'node:fs';const raw=process.env.SEPHORA_URL;if(!raw)throw Error('Set SEPHORA_URL to your HTTPS deployment');const u=new URL(raw);if(u.protocol!=='https:'||u.username||u.password)throw Error('HTTPS origin required');writeFileSync('desktop/config.json',JSON.stringify({url:u.origin},null,2));
