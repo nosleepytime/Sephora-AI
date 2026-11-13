@@ -2,13 +2,13 @@
   "chat": [
     {
       "id": "community/morriszdweck/glm-5.3-flash-free",
-      "name": "GLM 5.3 Flash (free, stable!)",
-      "description": "Free and smart agentic coding model, and stable!",
+      "name": "GLM 5.3 Flash (free)",
+      "description": "Default chat model. Provider availability may vary.",
       "vision": true,
       "video": false,
       "tools": true,
       "reasoning": true,
-      "status": "down",
+      "status": "unknown",
       "publisher": "OSAII",
       "freeStatus": "unknown"
     },
@@ -764,6 +764,23 @@
   "speech": "fish-audio/s2.1-pro-free:free",
   "image": [
     {
+      "id": "community/MarcosFRG/lucid-origin",
+      "name": "Lucid Origin",
+      "description": "Community image generation model. Provider pricing and availability apply.",
+      "status": "unknown",
+      "aliases": [
+        "community/MarcosFRG/lucid-origin:paid"
+      ],
+      "edit": false
+    },
+    {
+      "id": "black-forest-labs/flux.1-kontext-pro",
+      "name": "FLUX Kontext Pro (edit)",
+      "description": "Image editing with a reference image; provider pricing applies.",
+      "status": "unknown",
+      "edit": true
+    },
+    {
       "id": "community/scriptsnsenses-sys/sdxl-lightning-free",
       "name": "SXDL Lightning (FREE ; CONTRIBUTOR)",
       "description": "Free open source image model. Heads up: Your prompts and completions are logged and are used to make internal datasets etc. but the data is never sold, licensed, distributed or any derivative of it to anyone. The public benchmark results may be published publicly that are made on your data but the underlying dataset is never revealed and the data is never used to train models. Full privacy policy shared in the discord server linked to the model (in the model card).",
@@ -801,6 +818,7 @@
     }
   ],
   "catalogUpdatedAt": "2026-11-12T00:43:23.527Z",
-  "defaultImage": "community/scriptsnsenses-sys/sdxl-lightning-free",
-  "defaultVision": "community/Saauf/mistral-large-4"
+  "defaultImage": "community/MarcosFRG/lucid-origin",
+  "defaultVision": "community/Saauf/mistral-large-4",
+  "defaultEdit": "black-forest-labs/flux.1-kontext-pro"
 }
