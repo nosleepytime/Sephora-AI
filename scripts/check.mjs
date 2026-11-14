@@ -16,10 +16,28 @@ let plain='';const normal=createAnswerStream(x=>plain+=x,()=>{});normal.push('He
 let interleaved='';const mixed=createAnswerStream(x=>interleaved+=x,()=>{});for(const x of ['Hello ', '<th','ink>private','</think>','world'])mixed.push(x);mixed.finish();assert.equal(interleaved,'Hello world');
 console.log('Reasoning and response normalization tests passed.');
 
-assert.equal(m.defaultImage,'community/MarcosFRG/lucid-origin');
+assert.equal(m.defaultImage,'community/scriptsnsenses-sys/flux-2-dev-free');
 assert.equal(m.defaultEdit,'black-forest-labs/flux.1-kontext-pro');
 assert.match(s,/maxDuration=300/);assert.match(s,/\/v1\/images\/generations/);assert.match(s,/\/v1\/images\/edits/);assert.match(s,/heartbeat/);
 const chat=readFileSync('components/Chat.jsx','utf8');assert.match(chat,/await read\(false\)/);assert.match(chat,/Jump to latest message/);assert.match(chat,/follow\.current=false/);
 let long='';const codeStream=createAnswerStream(x=>long+=x,()=>{});const code='Here is your website:\n\n\x60\x60\x60html\n<!DOCTYPE html>\n<html><body>Hi</body></html>\n\x60\x60\x60';const envelope=JSON.stringify({name:null,message:code});for(let i=0;i<envelope.length;i+=7)codeStream.push(envelope.slice(i,i+7));codeStream.finish();assert.equal(long,code);
 let partial='';const bad=createAnswerStream(x=>partial+=x,()=>{});bad.push('{"name":null,"message":"Incomplete');assert.throws(()=>bad.finish(),/incomplete routing envelope/);assert.equal(partial,'Incomplete');
 console.log('Media, scroll, retry and long-response regression checks passed.');
+
+import {boundedMessages,continuationMessages,mergeContinuation,readEvents,retryable} from '../lib/reliability.mjs';
+assert.equal(m.image[0].id,m.defaultImage);
+assert.equal(boundedMessages([{role:'user',content:'x'.repeat(300)},{role:'assistant',content:'old'},{role:'user',content:'new'}],120).at(-1).content,'new');
+assert.throws(()=>boundedMessages([{role:'user',content:'é'.repeat(100)}],100),/too large/);
+assert.equal(mergeContinuation('Hello world ','Hello world again'),'Hello world again');
+const repeat='abcdef'.repeat(10);assert.equal(mergeContinuation('Start '+repeat,repeat+' end'),'Start '+repeat+' end');
+assert.match(continuationMessages([{role:'user',content:'Build a website'}],'partial code').at(-1).content,/exactly where/);
+assert.equal(retryable(new Error('Upstream stream disconnected')),true);
+assert.equal(retryable(new Error('Invalid credentials')),false);
+const enc=new TextEncoder();
+const responseOf=chunks=>new Response(new ReadableStream({start(c){for(const x of chunks)c.enqueue(enc.encode(x));c.close()}}));
+let events=[];await readEvents(responseOf(['{"type":"text","text":"hel','lo"}\n{"type":"heartbeat"}\n','{"type":"done"}']),x=>events.push(x));assert.equal(events[0].text,'hello');
+let saved='';await assert.rejects(()=>readEvents(responseOf(['{"type":"text","text":"saved"}\n']),x=>saved+=x.text),/disconnected/);assert.equal(saved,'saved');
+const huge='<!DOCTYPE html>\n'+'<div>animated layout</div>\n'.repeat(5000);
+let big='';const longStream=createAnswerStream(x=>big+=x,()=>{});const wrapped=JSON.stringify({name:null,message:huge});for(let i=0;i<wrapped.length;i+=1024)longStream.push(wrapped.slice(i,i+1024));longStream.finish();assert.equal(big,huge);
+assert.match(chat,/Continue response/);assert.match(chat,/saveTimer/);assert.match(chat,/boundedMessages/);assert.match(s,/275000/);assert.match(s,/type:'partial'/);assert.ok(existsSync('app/chat/error.jsx'));
+console.log('Resilience, interruption, context-budget and large-code tests passed.');
