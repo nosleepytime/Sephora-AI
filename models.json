@@ -764,6 +764,18 @@
   "speech": "fish-audio/s2.1-pro-free:free",
   "image": [
     {
+      "id": "community/scriptsnsenses-sys/flux-2-dev-free",
+      "name": "Flux 2 Dev (FREE ; CONTRIBUTOR)",
+      "description": "Free open source image model. Heads up: Your prompts and completions are logged and are used to make internal datasets etc. but the data is never sold, licensed, distributed or any derivative of it to anyone. The public benchmark results may be published publicly that are made on your data but the underlying dataset is never revealed and the data is never used to train models. Full privacy policy shared in the discord server linked to the model (in the model card).",
+      "vision": true,
+      "video": false,
+      "tools": false,
+      "reasoning": false,
+      "status": "down",
+      "publisher": "My discord server",
+      "freeStatus": "unknown"
+    },
+    {
       "id": "community/MarcosFRG/lucid-origin",
       "name": "Lucid Origin",
       "description": "Community image generation model. Provider pricing and availability apply.",
@@ -793,18 +805,6 @@
       "freeStatus": "unknown"
     },
     {
-      "id": "community/scriptsnsenses-sys/flux-2-dev-free",
-      "name": "Flux 2 Dev (FREE ; CONTRIBUTOR)",
-      "description": "Free open source image model. Heads up: Your prompts and completions are logged and are used to make internal datasets etc. but the data is never sold, licensed, distributed or any derivative of it to anyone. The public benchmark results may be published publicly that are made on your data but the underlying dataset is never revealed and the data is never used to train models. Full privacy policy shared in the discord server linked to the model (in the model card).",
-      "vision": true,
-      "video": false,
-      "tools": false,
-      "reasoning": false,
-      "status": "down",
-      "publisher": "My discord server",
-      "freeStatus": "unknown"
-    },
-    {
       "id": "community/tomdacatto/sana",
       "name": "Sana Sprint (Free)",
       "description": "Free image model",
@@ -818,7 +818,7 @@
     }
   ],
   "catalogUpdatedAt": "2026-11-12T00:43:23.527Z",
-  "defaultImage": "community/MarcosFRG/lucid-origin",
+  "defaultImage": "community/scriptsnsenses-sys/flux-2-dev-free",
   "defaultVision": "community/Saauf/mistral-large-4",
   "defaultEdit": "black-forest-labs/flux.1-kontext-pro"
 }
