@@ -41,3 +41,22 @@ const huge='<!DOCTYPE html>\n'+'<div>animated layout</div>\n'.repeat(5000);
 let big='';const longStream=createAnswerStream(x=>big+=x,()=>{});const wrapped=JSON.stringify({name:null,message:huge});for(let i=0;i<wrapped.length;i+=1024)longStream.push(wrapped.slice(i,i+1024));longStream.finish();assert.equal(big,huge);
 assert.match(chat,/Continue response/);assert.match(chat,/saveTimer/);assert.match(chat,/boundedMessages/);assert.match(s,/275000/);assert.match(s,/type:'partial'/);assert.ok(existsSync('app/chat/error.jsx'));
 console.log('Resilience, interruption, context-budget and large-code tests passed.');
+
+import {splitMarkdown,chunkCode} from '../lib/markdown-stream.mjs';
+const fence='\x60\x60\x60';
+const quoted='Thinking...\n'+'> planning, not a final answer\n> \n'.repeat(2000)+'\n';
+const liveHtml='<!DOCTYPE html>\n<html lang="fr">\n'+('<div class="tile">Café</div>\n').repeat(2200)+'</html>\n';
+const answer='Voici une page complète. **Maison Ardent**\n\n'+fence+'html\n'+liveHtml+fence+'\n\n## Détails\n\n| A | B |\n|---|---|\n| 1 | 2 |';
+assert.equal(normalizeResponse(quoted+answer).text,answer);
+let live='',thinking=false;const liveStream=createAnswerStream(x=>live+=x,()=>thinking=true);
+const fixture=quoted+answer;
+for(let i=0;i<fixture.length;i+=211){liveStream.push(fixture.slice(i,i+211));if(i+211<quoted.length)assert.equal(live,'');}
+assert.equal(live,answer);liveStream.finish();assert.equal(live,answer);assert.equal(thinking,true);
+let leading='';const codeOnly=createAnswerStream(x=>leading+=x,()=>{});codeOnly.push(fence+'ht');assert.equal(leading,'');codeOnly.push('ml\n<!DOCTYPE html>\n');assert.equal(leading,fence+'html\n<!DOCTYPE html>\n');codeOnly.push('<body>Test</body>\n');assert.match(leading,/<body>Test/);codeOnly.push(fence);codeOnly.finish();
+const blocks=splitMarkdown(answer);assert.equal(blocks.length,3);assert.equal(blocks[1].kind,'code');assert.equal(blocks[1].lang,'html');assert.equal(blocks[1].text,liveHtml);assert.equal(chunkCode(blocks[1].text).join(''),liveHtml);assert.equal(blocks[1].closed,true);
+const open=splitMarkdown('Intro\n\n'+fence+'html\n'+liveHtml.slice(0,5000));assert.equal(open[1].closed,false);assert.equal(open[1].text,liveHtml.slice(0,5000));
+const literal=fence+'html\n<analysis>valid XML example</analysis>\n'+fence;assert.equal(normalizeResponse(literal).text,literal);
+assert.equal(normalizeResponse('Thinking is useful.').text,'Thinking is useful.');
+assert.equal(normalizeResponse('Thinking...\n\nHere is the answer.').text,'Thinking...\n\nHere is the answer.');
+const renderer=readFileSync('components/Markdown.jsx','utf8');assert.match(renderer,/CodeChunk=memo/);assert.match(renderer,/splitMarkdown/);assert.doesNotMatch(renderer,/text\.length>120000/);assert.doesNotMatch(chat,/v\.text\.slice\(-10000\)/);assert.match(chat,/streaming=\{busy/);
+console.log('Live formatted Markdown, complete code, quoted reasoning and large response tests passed.');
