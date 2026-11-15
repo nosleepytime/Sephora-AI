@@ -60,3 +60,22 @@ assert.equal(normalizeResponse('Thinking is useful.').text,'Thinking is useful.'
 assert.equal(normalizeResponse('Thinking...\n\nHere is the answer.').text,'Thinking...\n\nHere is the answer.');
 const renderer=readFileSync('components/Markdown.jsx','utf8');assert.match(renderer,/CodeChunk=memo/);assert.match(renderer,/splitMarkdown/);assert.doesNotMatch(renderer,/text\.length>120000/);assert.doesNotMatch(chat,/v\.text\.slice\(-10000\)/);assert.match(chat,/streaming=\{busy/);
 console.log('Live formatted Markdown, complete code, quoted reasoning and large response tests passed.');
+
+import {isTerminalUsageError,recoveryAttempts,nextRecovery,providerThinking} from '../lib/reliability.mjs';
+assert.equal(isTerminalUsageError('Chat Completions provider returned invalid or omitted terminal usage.'),true);
+assert.equal(isTerminalUsageError('Invalid credentials'),false);
+let recovery=nextRecovery(null,'glm');assert.equal(recovery.attempts,0);
+for(let i=1;i<=3;i++){recovery=nextRecovery({recovery},'glm',true);assert.equal(recovery.attempts,i)}
+assert.equal(recoveryAttempts({recovery},'glm'),3);assert.equal(recoveryAttempts({recovery},'other'),0);assert.equal(nextRecovery({recovery},'other',true).attempts,1);
+assert.equal(providerThinking({reasoning_content:'actual thought'}),'actual thought');
+assert.equal(providerThinking({reasoning:'actual thought'}),'actual thought');
+assert.equal(providerThinking({reasoning_details:[{type:'reasoning.text',text:'one'},{type:'reasoning.summary',summary:'no'},{type:'reasoning.encrypted',data:'no'},{type:'reasoning.text',text:' two'}]}),'one two');
+let thought='',finalAnswer='';const reasoningStream=createAnswerStream(x=>finalAnswer+=x,()=>{},x=>thought+=x);
+for(const x of ['<th','ink>first ','second','</th','ink>','Final answer'])reasoningStream.push(x);
+assert.equal(thought,'first second');assert.equal(finalAnswer,'Final answer');reasoningStream.finish();assert.equal(thought,'first second');
+let quotedThought='',quotedFinal='';const quotedStream=createAnswerStream(x=>quotedFinal+=x,()=>{},x=>quotedThought+=x);
+for(const x of ['Think','ing...\n','> first',' thought\n','> second thought\n','\n','Final answer'])quotedStream.push(x);
+assert.equal(quotedFinal,'Final answer');assert.match(quotedThought,/first thought/);assert.match(quotedThought,/second thought/);quotedStream.finish();assert.equal(quotedFinal,'Final answer');
+assert.equal(normalizeResponse('Thinking...\n> old thought\n\nFinal').reasoning.trim(),'old thought');
+assert.match(s,/reasoning-delta/);assert.match(s,/code:'terminal_usage'/);assert.match(chat,/reasoning-scroll/);assert.match(chat,/attempts>=3/);assert.match(chat,/Choose another model to continue/);assert.doesNotMatch(chat,/No reasoning summary was provided/);
+console.log('Live reasoning transcript and three-attempt recovery tests passed.');
